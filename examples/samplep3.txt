@@ -1,0 +1,9 @@
+def sayhello(x):
+	x = input()
+	print(x)
+	print("hello world")
+	if x == "bye":
+		print("bye")
+
+model = Sequential()
+model.add(Conv2D(2,3))
