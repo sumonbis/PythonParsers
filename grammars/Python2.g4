@@ -8,6 +8,8 @@
  * line continuations, etc.
  *
  * Compiles with ANTLR 4.7, generated lexer/parser for Python 2 target.
+ 
+ * Python2 Grammar for Java target language created
  */
  
  grammar Python2;
@@ -15,78 +17,80 @@
  tokens { INDENT, DEDENT, NEWLINE, ENDMARKER }
 
 @lexer::header {
-from Python2Parser import Python2Parser
-from antlr4.Token  import CommonToken
-
-class IndentStack:
-    def __init__(self)    : self._s = []
-    def empty(self)       : return len(self._s) == 0
-    def push(self, wsval) : self._s.append(wsval)
-    def pop(self)         : self._s.pop()
-    def wsval(self)       : return self._s[-1] if len(self._s) > 0 else 0
-
-class TokenQueue:
-    def __init__(self)  : self._q = []
-    def empty(self)     : return len(self._q) == 0
-    def enq(self, t)    : self._q.append(t)
-    def deq(self)       : return self._q.pop(0)
+	//package parser;
 }
 
 @lexer::members {
-    # Indented to append code to the constructor.
-    self._openBRCount       = 0
-    self._suppressNewlines  = False
-    self._lineContinuation  = False
-    self._tokens            = TokenQueue()
-    self._indents           = IndentStack()
+  
+    private java.util.Queue<Token> _tokens = new java.util.LinkedList<Token>();
+    private java.util.Stack<Integer> _indents = new java.util.Stack<Integer>();
+    private int _openBRCount = 0;
+    private int _tokenStartColumn = 0;
+    private boolean _suppressNewlines = false;
+    private boolean _lineContinuation = false;
+    
+    
+    @Override
+    public Token nextToken() {
+    	
+        if (!this._tokens.isEmpty()) {
+            return this._tokens.poll();
+        } else {
+        	Token t = super.nextToken();
+            if (t.getType() != Python2Parser.EOF) return t;
+            else {
+                if (!this._suppressNewlines) {
+                    this.emitNewline();
+                }
+                this.emitFullDedent();
+                this.emitEndmarker();
+                this.emitEndToken(t);
+                return this._tokens.poll();
+            }
+        }
 
-def nextToken(self):
-    if not self._tokens.empty():
-        return self._tokens.deq()
-    else:
-        t = super(Python2Lexer, self).nextToken()
-        if t.type != Token.EOF:
-            return t
-        else:
-            if not self._suppressNewlines:
-                self.emitNewline()
-            self.emitFullDedent()
-            self.emitEndmarker()
-            self.emitEndToken(t)
-            return self._tokens.deq()
-            
-def emitEndToken(self, token):
-    self._tokens.enq(token)
+    }
 
-def emitIndent(self, length=0, text='INDENT'):
-    t = self.createToken(Python2Parser.INDENT, text, length)
-    self._tokens.enq(t)
+    public void emitEndToken(Token token) {
+        this._tokens.offer(token);
+    }
 
-def emitDedent(self):
-    t = self.createToken(Python2Parser.DEDENT, 'DEDENT')
-    self._tokens.enq(t)
+    public void emitIndent(int length, String text ) {
+        Token t = this.createToken(Python2Parser.INDENT, text, length);
+        this._tokens.offer(t);
+    }
 
-def emitFullDedent(self):
-    while not self._indents.empty():
-        self._indents.pop()
-        self.emitDedent()
+    public void emitDedent () {
+        Token t = this.createToken(Python2Parser.DEDENT, "DEDENT",0);
+        this._tokens.offer(t);
+    }
 
-def emitEndmarker(self):
-    t = self.createToken(Python2Parser.ENDMARKER, 'ENDMARKER')
-    self._tokens.enq(t)
+    public void emitFullDedent () {
+        while (!this._indents.isEmpty()) {
+            this._indents.pop();
+            this.emitDedent();
+        }
+    }
 
-def emitNewline(self):
-    t = self.createToken(Python2Parser.NEWLINE, 'NEWLINE')
-    self._tokens.enq(t)
+    public void emitEndmarker () {
+        Token t = this.createToken(Python2Parser.ENDMARKER, "ENDMARKER",0);
+        this._tokens.offer(t);
+    }
 
-def createToken(self, type_, text="", length=0):
-    start = self._tokenStartCharIndex
-    stop = start + length
-    t = CommonToken(self._tokenFactorySourcePair,
-                    type_, self.DEFAULT_TOKEN_CHANNEL,
-                    start, stop)
-    t.text = text
-    return t
+    public void emitNewline () {
+        Token t = this.createToken(Python2Parser.NEWLINE, "NEWLINE",0);
+        this._tokens.offer(t);
+    }   
+
+    public Token createToken (int type_, String text, int length) {
+        int start = this._tokenStartCharIndex;
+        int stop = start + length;
+        Token t = new CommonToken(this._tokenFactorySourcePair,
+                type_, this.DEFAULT_TOKEN_CHANNEL,
+                start, stop);
+        //t.setText(text);
+        return t;
+    }  
 }
 
 // Header included from Python site:
@@ -155,7 +159,7 @@ augassign: ('+=' | '-=' | '*=' | '/=' | '%=' | '&=' | '|=' | '^=' |
 //print_stmt: 'print' ( ( test (',' test)* (',')? )? |
 //                      '>>' test ( (',' test)+ (',')? )? )
 //    ;
-print_stmt: {self._input.LT(1).text=='print'}? 
+print_stmt: {this._input.LT(1).getText().equals("print")}? 
             // tt: this change allows print to be treated as a NAME
             //     while preserving the print statement syntax.
             NAME ( ( test (',' test)* (',')? )? |
@@ -359,52 +363,71 @@ STRING
     )
     ;
 
-LINENDING:             (('\r'? '\n')+ {self._lineContinuation=False}
-    |      '\\'  [ \t]* ('\r'? '\n')  {self._lineContinuation=True})
+LINENDING:             (('\r'? '\n')+ {this._lineContinuation=false;}
+    |      '\\'  [ \t]* ('\r'? '\n')  {this._lineContinuation=true;})
 {
-if self._openBRCount == 0 and not self._lineContinuation:
-    if not self._suppressNewlines:
-        self.emitNewline()
-        self._suppressNewlines = True
-    la = self._input.LA(1)
-    if la not in [ord(' '), ord('\t'), ord('#')]:
-        self._suppressNewlines = False
-        self.emitFullDedent()
+if (this._openBRCount == 0 && !this._lineContinuation) {
+    if (!this._suppressNewlines) {
+        this.emitNewline();
+        this._suppressNewlines = true;
+    }
+    int la = this._input.LA(1);
+    java.util.Set<Integer> set = new java.util.HashSet<>();
+    set.add((int)'\r');
+    set.add((int)'\n');
+    set.add((int)'#');
+    set.add(-1);
+    if (set.contains(la )== false) {
+        this._suppressNewlines = false;
+        this.emitFullDedent();
+    }
+}
 } -> channel(HIDDEN)
    ;
 
 WHITESPACE: ('\t' | ' ')+
 {
-if (self._tokenStartColumn == 0 and self._openBRCount == 0
-    and not self._lineContinuation):
+if (this._tokenStartCharPositionInLine == 0 && this._openBRCount == 0
+    && !this._lineContinuation) {
+    int la = this._input.LA(1);
+    java.util.Set<Integer> set = new java.util.HashSet<>();
+    set.add((int)'\r');
+    set.add((int)'\n');
+    set.add((int)'#');
+    set.add(-1);
+    if (set.contains(la )== false)
+        this._suppressNewlines = false;
+        int wsCount = 0;
+        for (char ch : this.getText().toCharArray()) {
+            if (ch == ' ') wsCount += 1;
+            else if (ch == '\t') wsCount += 8;
+        }
 
-    la = self._input.LA(1)
-    if la not in [ord('\r'), ord('\n'), ord('#'), -1]:
-        self._suppressNewlines = False
-        wsCount = 0
-        for ch in self.text:
-            if   ch == ' ' : wsCount += 1
-            elif ch == '\t': wsCount += 8
-
-        if wsCount > self._indents.wsval():
-            self.emitIndent(len(self.text))
-            self._indents.push(wsCount)
-        else:
-            while wsCount < self._indents.wsval():
-                self.emitDedent()
-                self._indents.pop()
-            if wsCount != self._indents.wsval():
-                raise Exception()
+		int pcount = this._indents.size()> 0?this._indents.peek():0;
+        if (wsCount > pcount) {
+            this.emitIndent(this.getText().length(),"");
+            this._indents.push(wsCount);
+        }
+        else {
+            while (wsCount < pcount) {
+                this.emitDedent();
+                this._indents.pop();
+            }
+            if (wsCount != pcount) {
+                // throw new Error('wsCount')
+            }
+        }
+    }
 }  -> channel(HIDDEN)
     ;
 
 COMMENT:        '#' ~[\r\n]* -> skip;
 
-OPEN_PAREN:     '(' {self._openBRCount  += 1};
-CLOSE_PAREN:    ')' {self._openBRCount  -= 1};
-OPEN_BRACE:     '{' {self._openBRCount  += 1};
-CLOSE_BRACE:    '}' {self._openBRCount  -= 1};
-OPEN_BRACKET:   '[' {self._openBRCount  += 1};
-CLOSE_BRACKET:  ']' {self._openBRCount  -= 1};
+OPEN_PAREN:     '(' {this._openBRCount  += 1;};
+CLOSE_PAREN:    ')' {this._openBRCount  -= 1;};
+OPEN_BRACE:     '{' {this._openBRCount  += 1;};
+CLOSE_BRACE:    '}' {this._openBRCount  -= 1;};
+OPEN_BRACKET:   '[' {this._openBRCount  += 1;};
+CLOSE_BRACKET:  ']' {this._openBRCount  -= 1;};
 
 UNKNOWN: . -> skip;

@@ -1,9 +1,11 @@
-def sayhello(x):
-	x = input()
-	print(x)
-	print("hello world")
-	if x == "bye":
-		print("bye")
 
+
+from keras.model import Sequential
+
+def trach(x, name = "English"):
+	print(x, name)
+	LSTM(7,28)
 model = Sequential()
-model.add(Conv2D(2,3))
+model.layer.first.params.add(Conv2D(2,3,activation = "relu"))
+CONV3D()
+print(x.y)

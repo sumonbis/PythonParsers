@@ -1,5 +1,4 @@
 // Generated from Python3.g4 by ANTLR 4.7.2
-
 package parsers.python3;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -10,7 +9,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
-public  abstract class  Python3BaseListener implements Python3Listener {
+public class Python3BaseListener implements Python3Listener {
 	/**
 	 * {@inheritDoc}
 	 *
@@ -203,6 +202,18 @@ public  abstract class  Python3BaseListener implements Python3Listener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSmall_stmt(Python3Parser.Small_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCalldef(Python3Parser.CalldefContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCalldef(Python3Parser.CalldefContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

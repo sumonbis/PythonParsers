@@ -1,5 +1,4 @@
 // Generated from Python3.g4 by ANTLR 4.7.2
-
 package parsers.python3;
 
 import org.antlr.v4.runtime.Lexer;

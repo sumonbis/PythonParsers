@@ -37,9 +37,9 @@ tokens { INDENT, DEDENT }
 
 @lexer::members {
   // A queue where extra tokens are pushed on (see the NEWLINE lexer rule).
-  private java.util.LinkedList<Token> tokens = new java.util.LinkedList<>();
+  private java.util.LinkedList<Token> tokens = new java.util.LinkedList<Token>();
   // The stack that keeps track of the indentation level.
-  private java.util.Stack<Integer> indents = new java.util.Stack<>();
+  private java.util.Stack<Integer> indents = new java.util.Stack<Integer>();
   // The amount of opened braces, brackets and parenthesis.
   private int opened = 0;
   // The most recently produced token.
@@ -140,6 +140,7 @@ decorated: decorators (classdef | funcdef | async_funcdef);
 async_funcdef: ASYNC funcdef;
 funcdef: 'def' NAME parameters ('->' test)? ':' suite;
 
+
 parameters: '(' (typedargslist)? ')';
 typedargslist: (tfpdef ('=' test)? (',' tfpdef ('=' test)?)* (',' (
         '*' (tfpdef)? (',' tfpdef ('=' test)?)* (',' ('**' tfpdef (',')?)?)?
@@ -154,16 +155,20 @@ varargslist: (vfpdef ('=' test)? (',' vfpdef ('=' test)?)* (',' (
   | '**' vfpdef (',')?
 );
 vfpdef: NAME;
-
+calldef : NAME parameters;
 stmt: simple_stmt | compound_stmt;
 simple_stmt: small_stmt (';' small_stmt)* (';')? NEWLINE;
 small_stmt: (expr_stmt | del_stmt | pass_stmt | flow_stmt |
-             import_stmt | global_stmt | nonlocal_stmt | assert_stmt);
+             import_stmt | global_stmt | nonlocal_stmt | assert_stmt | calldef);
+
 expr_stmt: testlist_star_expr (annassign | augassign (yield_expr|testlist) |
-                     ('=' (yield_expr|testlist_star_expr))*);
-annassign: ':' test ('=' test)?;
+                     (assign (yield_expr|testlist_star_expr))*);
+annassign: ':' test (assign test)?;
+assign : '=';
+plus : '+';
+pluseq : '+=';
 testlist_star_expr: (test|star_expr) (',' (test|star_expr))* (',')?;
-augassign: ('+=' | '-=' | '*=' | '@=' | '/=' | '%=' | '&=' | '|=' | '^=' |
+augassign: (pluseq | '-=' | '*=' | '@=' | '/=' | '%=' | '&=' | '|=' | '^=' |
             '<<=' | '>>=' | '**=' | '//=');
 // For normal and annotated assignments, additional restrictions enforced by the interpreter
 del_stmt: 'del' exprlist;
@@ -188,7 +193,7 @@ global_stmt: 'global' NAME (',' NAME)*;
 nonlocal_stmt: 'nonlocal' NAME (',' NAME)*;
 assert_stmt: 'assert' test (',' test)?;
 
-compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef | decorated | async_stmt;
+compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef | decorated | async_stmt | calldef;
 async_stmt: ASYNC (funcdef | with_stmt | for_stmt);
 if_stmt: 'if' test ':' suite ('elif' test ':' suite)* ('else' ':' suite)?;
 while_stmt: 'while' test ':' suite ('else' ':' suite)?;
@@ -220,9 +225,9 @@ expr: xor_expr ('|' xor_expr)*;
 xor_expr: and_expr ('^' and_expr)*;
 and_expr: shift_expr ('&' shift_expr)*;
 shift_expr: arith_expr (('<<'|'>>') arith_expr)*;
-arith_expr: term (('+'|'-') term)*;
+arith_expr: term ((plus|'-') term)*;
 term: factor (('*'|'@'|'/'|'%'|'//') factor)*;
-factor: ('+'|'-'|'~') factor | power;
+factor: (plus|'-'|'~') factor | power;
 power: atom_expr ('**' factor)?;
 atom_expr: (AWAIT)? atom trailer*;
 atom: ('(' (yield_expr|testlist_comp)? ')' |

@@ -121,8 +121,8 @@ public class Python2Lexer extends Lexer {
 
 
 	  
-	    private java.util.Queue<Token> _tokens = new java.util.LinkedList<>();
-	    private java.util.Stack<Integer> _indents = new java.util.Stack<>();
+	    private java.util.Queue<Token> _tokens = new java.util.LinkedList<Token>();
+	    private java.util.Stack<Integer> _indents = new java.util.Stack<Integer>();
 	    private int _openBRCount = 0;
 	    private int _tokenStartColumn = 0;
 	    private boolean _suppressNewlines = false;
