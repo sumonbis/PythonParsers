@@ -184,10 +184,10 @@ public class VisitPython3 extends Python3BaseListener{
 		//System.out.println("Factor");
 		//System.out.println(ctx.getText());
 		if(arithopfound) {
-			result += Integer.parseInt(ctx.getText());
+			//result += Integer.parseInt(ctx.getText());
 		}
 		else {
-			result = Integer.parseInt(ctx.getText());
+			//result = Integer.parseInt(ctx.getText());
 		}
 	}
 	
