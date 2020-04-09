@@ -1,6 +1,6 @@
-// Generated from Python3.g4 by ANTLR 4.5
-
 package parsers.python35;
+
+// Generated from Python3.g4 by ANTLR 4.5
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -219,6 +219,16 @@ public interface Python3Listener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPlus(Python3Parser.PlusContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link Python3Parser#pluseq}.
+	 * @param ctx the parse tree
+	 */
+	void enterPluseq(Python3Parser.PluseqContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link Python3Parser#pluseq}.
+	 * @param ctx the parse tree
+	 */
+	void exitPluseq(Python3Parser.PluseqContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link Python3Parser#testlist_star_expr}.
 	 * @param ctx the parse tree
@@ -529,6 +539,36 @@ public interface Python3Listener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSuite(Python3Parser.SuiteContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link Python3Parser#lor}.
+	 * @param ctx the parse tree
+	 */
+	void enterLor(Python3Parser.LorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link Python3Parser#lor}.
+	 * @param ctx the parse tree
+	 */
+	void exitLor(Python3Parser.LorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link Python3Parser#land}.
+	 * @param ctx the parse tree
+	 */
+	void enterLand(Python3Parser.LandContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link Python3Parser#land}.
+	 * @param ctx the parse tree
+	 */
+	void exitLand(Python3Parser.LandContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link Python3Parser#lnot}.
+	 * @param ctx the parse tree
+	 */
+	void enterLnot(Python3Parser.LnotContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link Python3Parser#lnot}.
+	 * @param ctx the parse tree
+	 */
+	void exitLnot(Python3Parser.LnotContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link Python3Parser#test}.
 	 * @param ctx the parse tree

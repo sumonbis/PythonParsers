@@ -164,12 +164,31 @@ small_stmt: (expr_stmt | del_stmt | pass_stmt | flow_stmt |
 expr_stmt: testlist_star_expr (annassign | augassign (yield_expr|testlist) |
                      (assign (yield_expr|testlist_star_expr))*);
 annassign: ':' test (assign test)?;
-assign : '=';
-plus : '+';
-pluseq : '+=';
+assign: '=';
+plus: '+';
+minus: '-';
+pow: '**';
+compl: '~';
+mult: '*';
+at: '@';
+div: '/';
+rem: '%';
+fdiv: '//';
+pluseq: '+=';
+minuseq: '-=';
+multeq: '*=';
+diveq: '/=';
+remeq: '%=';
+andeq: '&=';
+oreq: '|=';
+xoreq: '^=';
+lshifteq: '<<=';
+rshifteq: '>>=';
+powereq: '**=';
+fdiveq: '//=';
 testlist_star_expr: (test|star_expr) (',' (test|star_expr))* (',')?;
-augassign: (pluseq | '-=' | '*=' | '@=' | '/=' | '%=' | '&=' | '|=' | '^=' |
-            '<<=' | '>>=' | '**=' | '//=');
+augassign: (pluseq | minuseq | multeq | '@=' | diveq | remeq | andeq | oreq | xoreq |
+            lshifteq | rshifteq | powereq | fdiveq);
 // For normal and annotated assignments, additional restrictions enforced by the interpreter
 del_stmt: 'del' exprlist;
 pass_stmt: 'pass';
@@ -209,13 +228,17 @@ with_item: test ('as' expr)?;
 except_clause: 'except' (test ('as' NAME)?)?;
 suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT;
 
+lor: 'or';
+land: 'and';
+lnot: 'not';
+
 test: or_test ('if' or_test 'else' test)? | lambdef;
 test_nocond: or_test | lambdef_nocond;
 lambdef: 'lambda' (varargslist)? ':' test;
 lambdef_nocond: 'lambda' (varargslist)? ':' test_nocond;
-or_test: and_test ('or' and_test)*;
-and_test: not_test ('and' not_test)*;
-not_test: 'not' not_test | comparison;
+or_test: and_test (lor and_test)*;
+and_test: not_test (land not_test)*;
+not_test: lnot not_test | comparison;
 comparison: expr (comp_op expr)*;
 // <> isn't actually a valid comparison operator in Python. It's here for the
 // sake of a __future__ import described in PEP 401 (which really works :-)
@@ -225,10 +248,10 @@ expr: xor_expr ('|' xor_expr)*;
 xor_expr: and_expr ('^' and_expr)*;
 and_expr: shift_expr ('&' shift_expr)*;
 shift_expr: arith_expr (('<<'|'>>') arith_expr)*;
-arith_expr: term ((plus|'-') term)*;
-term: factor (('*'|'@'|'/'|'%'|'//') factor)*;
-factor: (plus|'-'|'~') factor | power;
-power: atom_expr ('**' factor)?;
+arith_expr: term ((plus|minus) term)*;
+term: factor ((mult|at|div|rem|fdiv) factor)*;
+factor: (plus|minus|compl) factor | power;
+power: atom_expr (pow factor)?;
 atom_expr: (AWAIT)? atom trailer*;
 atom: ('(' (yield_expr|testlist_comp)? ')' |
        '[' (testlist_comp)? ']' |
