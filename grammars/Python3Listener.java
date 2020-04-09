@@ -1058,6 +1058,16 @@ public interface Python3Listener extends ParseTreeListener {
 	 */
 	void exitArglist(Python3Parser.ArglistContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link Python3Parser#argeq}.
+	 * @param ctx the parse tree
+	 */
+	void enterArgeq(Python3Parser.ArgeqContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link Python3Parser#argeq}.
+	 * @param ctx the parse tree
+	 */
+	void exitArgeq(Python3Parser.ArgeqContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link Python3Parser#argument}.
 	 * @param ctx the parse tree
 	 */

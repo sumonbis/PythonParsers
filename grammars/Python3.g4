@@ -282,8 +282,9 @@ arglist: argument (',' argument)*  (',')?;
 // Illegal combinations and orderings are blocked in ast.c:
 // multiple (test comp_for) arguments are blocked; keyword unpackings
 // that precede iterable unpackings are blocked; etc.
+argeq: '=';
 argument: ( test (comp_for)? |
-            test '=' test |
+            test argeq test |
             '**' test |
             '*' test );
 
