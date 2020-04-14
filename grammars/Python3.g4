@@ -253,7 +253,9 @@ term: factor ((mult|at|div|rem|fdiv) factor)*;
 factor: (plus|minus|compl) factor | power;
 power: atom_expr (pow factor)?;
 atom_expr: (AWAIT)? atom trailer*;
-atom: ('(' (yield_expr|testlist_comp)? ')' |
+tuple_start: '(';
+tuple_end: ')';
+atom: (tuple_start (yield_expr|testlist_comp)? tuple_end |
        '[' (testlist_comp)? ']' |
        '{' (dictorsetmaker)? '}' |
        NAME | NUMBER | STRING+ | '...' | 'None' | 'True' | 'False');
